@@ -1,0 +1,54 @@
+version: "3.8"
+
+networks:
+  grafana-net:
+
+volumes:
+  grafana-data:
+    driver: local
+  loki-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /loki
+      o: bind
+
+services:
+  init:
+    image: grafana/loki:2.9.3
+    user: root
+    entrypoint:
+      - "chown"
+      - "10001:10001"
+      - "/loki"
+    volumes:
+      - loki-data:/loki
+    networks:
+      - grafana-net
+
+  loki:
+    image: grafana/loki:2.9.3
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    restart: unless-stopped
+    networks:
+      - grafana-net
+
+  grafana:
+    image: grafana/grafana:10.0.10
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      # User: admin Password: password
+      - GF_SECURITY_ADMIN_PASSWORD=password # Change this
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
+    networks:
+      - grafana-net

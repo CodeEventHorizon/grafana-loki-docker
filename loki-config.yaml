@@ -1,0 +1,83 @@
+# Enables authentication through the X-Scope-OrgID header, which must be present
+# if true. If false, the OrgID will always be set to "fake".
+auth_enabled: false
+
+# Server configuration
+server:
+  # The HTTP server will listen on all network interfaces
+  http_listen_address: "0.0.0.0"
+  # Defines the port on which the HTTP server will listen
+  http_listen_port: 3100
+
+# Ingester settings - responsible for writing log data to long-term storage
+ingester:
+  lifecycler:
+    # Address where the ingester can be reached within the infrastructure
+    address: "127.0.0.1"
+    # Ring configuration to handle distribution of series and tokens
+    ring:
+      # In-memory key-value store is used
+      kvstore:
+        store: inmemory
+      # Ensures every piece of data is replicated once (not distributed)
+      replication_factor: 1
+    # Time to sleep after an unclean shutdown
+    final_sleep: 0s
+  # Duration for an inactive chunk to stay in memory before being flushed to storage
+  chunk_idle_period: 5m
+  # Length of time to retain chunks in memory after flushing
+  chunk_retain_period: 30s
+
+# Schema configuration dictates how logs are stored
+schema_config:
+  configs:
+    # Period configuration starting from 2024-01-01
+    - from: 2020-05-15
+      # BoltDB is used for indexing log chunks
+      store: boltdb
+      # Logs are stored in the local filesystem
+      object_store: filesystem
+      # Schema version
+      schema: v11
+      # Index prefix for the BoltDB files
+      index:
+        prefix: index_
+        # Time period for each index table, one week in hours
+        period: 168h
+
+# Storage configuration detailing where and how the logs should be stored
+storage_config:
+  # Configuration for the index store using BoltDB
+  boltdb:
+    # Directory where BoltDB index files will be stored
+    directory: /loki/index
+
+  # Filesystem storage configuration for storing chunks
+  filesystem:
+    # Directory where log chunks will be stored as files
+    directory: /loki/chunks
+
+# Limits configuration for controlling ingestion and query behavior
+limits_config:
+  # Retention policy duration: logs older than this duration will be deleted.
+  retention_period: 1440h # 2 months in hours
+  # Whether a metric name must be enfored; false allows metrics without a name
+  enforce_metric_name: false
+  # Reject samples that are too old according to `reject_old_samples_max_age`
+  reject_old_samples: true
+  # Maximum accepted age of old samples before they are rejected
+  reject_old_samples_max_age: 168h
+# ruler:
+#   alertmanager_url: http://localhost:9093
+# By default, Loki will send anonymous, but uniquely-identifiable usage and configuration
+# analytics to Grafana Labs. These statistics are sent to https://stats.grafana.org/
+#
+# Statistics help us better understand how Loki is used, and they show us performance
+# levels for most users. This helps us prioritize features and documentation.
+# For more information on what's sent, look at
+# https://github.com/grafana/loki/blob/main/pkg/usagestats/stats.go
+# Refer to the buildReport method to see what goes into a report.
+#
+# If you would like to disable reporting, uncomment the following lines:
+#analytics:
+#  reporting_enabled: false
