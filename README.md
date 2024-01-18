@@ -1,5 +1,7 @@
 # Grafana Loki with docker compose and local filesystem storage
 
+If you would like to send logs directly to Grafana Loki without Promtail, use the following API to push logs: POST method `http://example.com/loki/api/v1/push`
+
 ## Tools used:
 
 1. Docker
