@@ -60,7 +60,7 @@ storage_config:
 # Limits configuration for controlling ingestion and query behavior
 limits_config:
   # Retention policy duration: logs older than this duration will be deleted.
-  retention_period: 1440h # 2 months in hours
+  retention_period: 120h # retention period in hours
   # Whether a metric name must be enfored; false allows metrics without a name
   enforce_metric_name: false
   # Reject samples that are too old according to `reject_old_samples_max_age`
