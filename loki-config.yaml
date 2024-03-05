@@ -15,7 +15,6 @@ compactor:
   shared_store: filesystem
   retention_enabled: true
   retention_delete_delay: 1h
-  retention_period: 120h # 5 days in hours
   
 # Ingester settings - responsible for writing log data to long-term storage
 ingester:
